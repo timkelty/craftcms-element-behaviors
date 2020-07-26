@@ -2,12 +2,14 @@
 
 namespace modules\appmodule;
 
+use craft\base\Element;
 use craft\elements\Entry;
+use craft\elements\User;
 use craft\services\Elements;
 use yii\base\Event;
 use yii\base\InvalidConfigException;
 
-class Module extends \yii\base\Module
+class AppModule extends \yii\base\Module
 {
     const SECTION_BEHAVIORS = [
         'products' => [
@@ -21,13 +23,13 @@ class Module extends \yii\base\Module
         ],
     ];
 
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->registerEventListeners();
     }
 
-    public function registerEventListeners()
+    public function registerEventListeners(): void
     {
         Event::on(
             Entry::class,
@@ -37,9 +39,10 @@ class Module extends \yii\base\Module
             }
         );
 
-        // Explicitly attaching behaviors here, as prior to this (EVENT_INIT),
-        // the sectionId will not have been set, and thus the behavior not attached.
-        // This allows us to listen for Entry::EVENT_BEFORE_SAVE from within our behaviors.
+        // Explicitly attaching behaviors again here, as new entries won't yet
+        // have a section defined when Entry::EVENT_INIT is fired, and thus the
+        // behavior won't be attached. This allows us to listen for
+        // Entry::EVENT_BEFORE_SAVE from within our behavior.
         Event::on(
             Elements::class,
             Elements::EVENT_BEFORE_SAVE_ELEMENT,
@@ -51,16 +54,16 @@ class Module extends \yii\base\Module
         );
     }
 
-    private function attachElementBehaviors(Element $element)
+    private function attachElementBehaviors(Element $element): void
     {
         $behaviors = null;
 
         // Bail early if this element has no source (section, etc.)
         try {
-            if ($event->element instanceof Entry) {
-                $behaviors = self::SECTION_BEHAVIORS[$entry->section->handle];
-            } elseif ($event->element instanceof User) {
-                $behaviors = self::USER_GROUP_BEHAVIORS[$entry->group->handle];
+            if ($element instanceof Entry) {
+                $behaviors = self::SECTION_BEHAVIORS[$element->section->handle] ?? null;
+            } elseif ($element instanceof User) {
+                $behaviors = self::USER_GROUP_BEHAVIORS[$element->group->handle] ?? null;
             }
         } catch (InvalidConfigException $e) {
             return;

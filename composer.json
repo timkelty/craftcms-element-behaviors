@@ -1,0 +1,18 @@
+{
+  "type": "project",
+  "require": {
+    "craftcms/cms": "3.5.x-dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "modules\\": "src/modules"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "optimize-autoloader": true,
+    "platform": {
+      "php": "7.3"
+    }
+  }
+}
