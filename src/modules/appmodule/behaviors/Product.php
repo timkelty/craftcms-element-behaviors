@@ -12,7 +12,16 @@ class Product extends Behavior implements ReviewableInterface
     public function rules()
     {
         return [
-            Entry::EVENT_BEFORE_SAVE => 'autoExpireEntries'
+            // Example: auto-expire entires 3 months from post date
+            Entry::EVENT_BEFORE_SAVE => function (ModelEvent $event) {
+                $entry = $event->sender;
+
+                if (ElementHelper::isDraftOrRevision($entry)) {
+                    return;
+                }
+
+                $entry->expiryDate = (clone $entry->postDate)->modify('+3 months');
+            }
         ];
     }
 
@@ -26,14 +35,8 @@ class Product extends Behavior implements ReviewableInterface
             ]);
     }
 
-    public function autoExpireEntries(ModelEvent $event)
+    public function getIsDiscontinued()
     {
-        $entry = $event->sender;
-
-        if (ElementHelper::isDraftOrRevision($entry)) {
-            return;
-        }
-
-        $entry->expiryDate = (clone $entry->postDate)->modify('+3 months');
+        return $this->owner->getFieldValue('isDiscontinued') || !$this->owner->manufacturer->exists();
     }
 }
