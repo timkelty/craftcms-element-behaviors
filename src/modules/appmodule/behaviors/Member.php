@@ -6,7 +6,7 @@ use yii\base\Behavior;
 
 class Member extends Behavior
 {
-    public function events()
+    public function events(): array
     {
         return [
             User::EVENT_DEFINE_RULES => function (DefineRulesEvent $event) {
@@ -15,7 +15,7 @@ class Member extends Behavior
       ];
     }
 
-    public function getProfileUri()
+    public function getProfileUri(): string
     {
         return 'members/' . $this->owner->id;
     }
