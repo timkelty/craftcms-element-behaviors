@@ -10,13 +10,13 @@ class Member extends Behavior
     {
         return [
             User::EVENT_DEFINE_RULES => function (DefineRulesEvent $event) {
-                $event->rules[] = ['username', 'in', 'not' => true, 'range' => [
-                    'system',
-                    'admin',
-                    'moderator',
-                ]];
                 $event->rules[] = ['username', 'string', 'length' => [3, 20]];
             },
       ];
+    }
+
+    public function getProfileUri()
+    {
+        return 'members/' . $this->owner->id;
     }
 }
